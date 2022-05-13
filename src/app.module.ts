@@ -13,7 +13,10 @@ import { TuitsModule } from './modules/tuits/tuits.module';
       username: 'root',
       password: '',
       database: 'ong',
-    })
+      autoLoadEntities: true,
+      synchronize: true,
+    }),
   ],
 })
+
 export class AppModule {}
