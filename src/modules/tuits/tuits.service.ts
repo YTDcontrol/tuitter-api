@@ -16,7 +16,9 @@ export class TuitsService {
   }
 
   async getTuit(id: number): Promise<Tuit> {
-    const tuit: Tuit = await this.tuitRepository.findOne(id);
+    const tuit: Tuit = await this.tuitRepository.findOneBy({
+      id: id
+  });
 
     if (!tuit) {
       throw new NotFoundException('Resource not found');
@@ -38,11 +40,18 @@ export class TuitsService {
     if (!tuit) {
       throw new NotFoundException('Resource not found');
     }
-    return tuit;
+    const tuitNuevo: Tuit = await this.tuitRepository.save({
+      id,
+      message,
+    });
+    return tuitNuevo;
   }
 
   async removeTuit(id: number): Promise<void> {
-    const tuit: Tuit = await this.tuitRepository.findOne(id);
+    const tuit: Tuit = await this.tuitRepository.findOneBy({
+      id: id
+  });
+
     if (!tuit) {
       throw new NotFoundException(`Resource not found`);
     }
