@@ -8,7 +8,7 @@ import { Tuit } from './tuit.entity';
 @Injectable()
 export class TuitsService {
   constructor(
-    @InjectRepository(Tuit) private readonly tuitRepository: Repository<Tuit>
+    @InjectRepository(Tuit) private readonly tuitRepository: Repository<Tuit>,
   ) {}
 
   async getTuits(): Promise<Tuit[]> {
@@ -17,8 +17,8 @@ export class TuitsService {
 
   async getTuit(id: number): Promise<Tuit> {
     const tuit: Tuit = await this.tuitRepository.findOneBy({
-      id: id
-  });
+      id: id,
+    });
 
     if (!tuit) {
       throw new NotFoundException('Resource not found');
@@ -49,8 +49,8 @@ export class TuitsService {
 
   async removeTuit(id: number): Promise<void> {
     const tuit: Tuit = await this.tuitRepository.findOneBy({
-      id: id
-  });
+      id: id,
+    });
 
     if (!tuit) {
       throw new NotFoundException(`Resource not found`);
