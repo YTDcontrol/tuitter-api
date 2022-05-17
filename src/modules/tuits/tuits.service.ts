@@ -1,48 +1,51 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { CreateTuitDto, UpdateTuitDto } from './dto';
 import { Tuit } from './tuit.entity';
 
 @Injectable()
 export class TuitsService {
-  private tuits: Tuit[] = [
-    {
-      id: 1,
-      message: 'Hello World from Nest.js 🐱',
-    },
-  ];
+  constructor(
+    @InjectRepository(Tuit) private readonly tuitRepository: Repository<Tuit>
+  ) {}
 
-  getTuits(): Tuit[] {
-    return this.tuits;
+  async getTuits(): Promise<Tuit[]> {
+    return await this.tuitRepository.find();
   }
 
-  getTuit(id: number): Tuit {
-    const tuit = this.tuits.find((item) => item.id === id);
+  async getTuit(id: number): Promise<Tuit> {
+    const tuit: Tuit = await this.tuitRepository.findOne(id);
 
+    if (!tuit) {
+      throw new NotFoundException('Resource not found');
+    }
+
+    return tuit;
+  }
+
+  async createTuit({ message }: CreateTuitDto) {
+    const tuit: Tuit = await this.tuitRepository.create({ message });
+    return this.tuitRepository.save(tuit);
+  }
+
+  async updateTuit(id: number, { message }: UpdateTuitDto) {
+    const tuit: Tuit = await this.tuitRepository.preload({
+      id,
+      message,
+    });
+    if (!tuit) {
+      throw new NotFoundException('Resource not found');
+    }
+    return tuit;
+  }
+
+  async removeTuit(id: number): Promise<void> {
+    const tuit: Tuit = await this.tuitRepository.findOne(id);
     if (!tuit) {
       throw new NotFoundException(`Resource not found`);
     }
-
-    return tuit;
-  }
-
-  createTuit({message}: CreateTuitDto) {
-    this.tuits.push({
-      id: (Math.floor(Math.random() * 2000) + 1),
-      message,
-    });
-  }
-
-  updateTuit(id: number, {message}: UpdateTuitDto) {
-    const tuit: Tuit = this.getTuit(id);
-    tuit.message = message;
-
-    return tuit;
-  }
-
-  removeTuit(id: number) {
-    const index = this.tuits.findIndex((tuit) => tuit.id === id);
-    if (index >= 0) {
-      this.tuits.splice(index, 1);
-    }
+    this.tuitRepository.remove(tuit);
   }
 }
